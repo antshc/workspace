@@ -73,4 +73,4 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /root/workspace
 
-CMD ["copiloty"]
+CMD ["bash"]

@@ -1,0 +1,34 @@
+services:
+  workspace:
+    build:
+      context: ./testing
+      dockerfile: Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - COPILOT_GITHUB_TOKEN=${COPILOT_GITHUB_TOKEN}
+      - COPILOT_MODEL=${COPILOT_MODEL:-claude-sonnet-4.6}
+      # Optional: override inference effort (e.g. low, medium, high)
+      # - COPILOT_EFFORT=${COPILOT_EFFORT}
+      # Optional: cap the autopilot continuation loop (default: 20)
+      # - COPILOT_MAX_AUTOPILOT_CONTINUES=${COPILOT_MAX_AUTOPILOT_CONTINUES:-20}
+      # Optional: comma-separated extra directories the agent can access.
+      # Extends the defaults (workspace, workspace.worktrees, .copilot) — does not replace them.
+      # - COPILOT_ADD_DIRS=${COPILOT_ADD_DIRS}
+      # Optional: comma-separated deny-tool entries (unset = no deny tools)
+      # - COPILOT_DENY_TOOLS=${COPILOT_DENY_TOOLS}
+      # GitHub CLI (gh) auth: either mount ~/.config/gh (preferred) or set GH_TOKEN.
+      # - GH_TOKEN=${GH_TOKEN}
+    volumes:
+      # Mount copilot logs:
+      - ./logs/copilot:/var/log/copilot
+      # Mount your workspace:
+      - ./workspace:/root/workspace
+      # Optional: mount host git config for correct git identity inside the container
+      - ~/.gitconfig:/root/.gitconfig:ro
+      # Optional: expose the host Docker socket so integration tests can manage containers.
+      # WARNING: This grants full Docker daemon access (equivalent to root on the host).
+      # Only enable for trusted developer workloads — never in production or untrusted CI.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Required for GitHub CLI (gh) authentication — mount host gh config
+      - ~/.config/gh:/root/.config/gh:ro
