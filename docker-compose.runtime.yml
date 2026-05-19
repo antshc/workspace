@@ -1,16 +1,6 @@
 services:
   workspace:
-    build:
-      context: ./src
-      dockerfile: Dockerfile
-    image: workspace:latest
-
-  testing:
-    build:
-      context: ./testing
-      dockerfile: Dockerfile
-    depends_on:
-      - workspace
+    image: antshc/workspace:latest
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
