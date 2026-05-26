@@ -4,6 +4,7 @@ FROM ubuntu:${UBUNTU_VERSION}
 
 ARG UBUNTU_CODENAME=noble
 ARG NODE_MAJOR=24
+ARG GH_VERSION=2.92.0
 ARG DOTNET_SDK_8_VERSION=8.0.419
 ARG DOTNET_SDK_10_VERSION=10.0.105
 
@@ -38,7 +39,7 @@ RUN apt-get update \
         | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     # Refresh index once for all new repos, then install
     && apt-get update \
-    && apt-get install -y --no-install-recommends nodejs gh docker-ce-cli \
+    && apt-get install -y --no-install-recommends nodejs gh=${GH_VERSION} docker-ce-cli \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

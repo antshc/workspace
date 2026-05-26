@@ -7,7 +7,7 @@ A Docker-based development environment with Node.js, .NET, Python, GitHub CLI, D
 Pull and run the published image directly:
 
 ```bash
-docker compose -f docker-compose.runtime.yml run --rm workspace bash
+docker compose -f docker-compose.runtime.yml run -it --rm workspace bash
 ```
 
 ## Build from source
@@ -33,7 +33,7 @@ docker build -t workspace-testing ./testing
 Or use the testing compose file (builds both):
 
 ```bash
-docker compose -f docker-compose.testing.yml run --rm testing bash
+docker compose -f docker-compose.testing.yml run -it --rm testing bash
 ```
 
 ## Compose files

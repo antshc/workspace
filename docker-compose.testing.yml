@@ -38,4 +38,4 @@ services:
       # Only enable for trusted developer workloads — never in production or untrusted CI.
       - /var/run/docker.sock:/var/run/docker.sock
       # Required for GitHub CLI (gh) authentication — mount host gh config
-      - ~/.config/gh:/root/.config/gh:ro
+      - ~/.config/gh:/root/.config/gh:rw
