@@ -3,6 +3,7 @@ ARG UBUNTU_VERSION=24.04
 FROM ubuntu:${UBUNTU_VERSION}
 
 ARG UBUNTU_CODENAME=noble
+ARG AZURE_CLI_CODENAME=jammy
 ARG NODE_MAJOR=24
 ARG GH_VERSION=2.92.0
 ARG DOTNET_SDK_8_VERSION=8.0.419
@@ -17,7 +18,7 @@ ENV DOTNET_NOLOGO=1
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl wget git jq ca-certificates gnupg unzip bash openssh-client \
-        iproute2 net-tools lsof netcat-openbsd \
+        iproute2 net-tools lsof netcat-openbsd dnsutils \
         python3 python3-pip python3-venv \
         libicu74 libssl3t64 \
         iputils-ping \
@@ -37,11 +38,29 @@ RUN apt-get update \
         | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME} stable" \
         | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    # Azure CLI repo
+    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+        | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg \
+    && chmod go+r /usr/share/keyrings/microsoft.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ ${AZURE_CLI_CODENAME} main" \
+        | tee /etc/apt/sources.list.d/azure-cli.list > /dev/null \
     # Refresh index once for all new repos, then install
     && apt-get update \
-    && apt-get install -y --no-install-recommends nodejs gh=${GH_VERSION} docker-ce-cli \
+    && apt-get install -y --no-install-recommends nodejs gh=${GH_VERSION} docker-ce-cli azure-cli \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Install AWS CLI v2 from official bundle (works reliably across Ubuntu releases).
+RUN ARCH="$(dpkg --print-architecture)" \
+    && case "$ARCH" in \
+        amd64) AWS_ARCH="x86_64" ;; \
+        arm64) AWS_ARCH="aarch64" ;; \
+        *) echo "Unsupported architecture for AWS CLI: $ARCH" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o /tmp/awscliv2.zip \
+    && unzip -q /tmp/awscliv2.zip -d /tmp \
+    && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update \
+    && rm -rf /tmp/aws /tmp/awscliv2.zip
 
 # Install specific .NET SDK versions via the official dotnet-install script.
 # Installing to /usr/lib/dotnet ensures SDKs appear under /usr/lib/dotnet/sdk.
@@ -62,7 +81,7 @@ RUN mkdir -p /root/.venvs \
 # Copy copilot wrapper
 COPY copilot-alias.sh /usr/local/bin/copilot-alias.sh
 RUN chmod +x /usr/local/bin/copilot-alias.sh \
-    && ln -s /usr/local/bin/copilot-alias.sh /usr/local/bin/copiloty \
+    && ln -s /usr/local/bin/copilot-alias.sh /usr/local/bin/yolo \
     && mkdir -p /root/workspace /var/log/copilot
 
 ENV COPILOT_DEFAULT_ADD_DIRS=/root/workspace,/root/workspace.worktrees,/root/.copilot

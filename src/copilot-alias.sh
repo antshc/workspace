@@ -29,6 +29,11 @@ else
   deny_tools=()
 fi
 
+# Disabled MCP servers; comma-separated list.
+# Defaults to github-mcp-server if unset.
+DISABLE_MCP_SERVERS="${COPILOT_DISABLE_MCP_SERVERS:-github-mcp-server}"
+IFS=',' read -r -a disable_mcp_servers <<< "$DISABLE_MCP_SERVERS"
+
 args=(
   --model "$MODEL"
   --output-format "$OUTPUT_FORMAT"
@@ -42,6 +47,10 @@ args=(
 
 for tool in "${deny_tools[@]}"; do
   args+=(--deny-tool="$tool")
+done
+
+for server in "${disable_mcp_servers[@]}"; do
+  args+=(--disable-mcp-server="$server")
 done
 
 IFS=',' read -r -a add_dirs <<< "$ADD_DIRS"
