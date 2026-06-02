@@ -65,3 +65,4 @@ Uncomment in the compose file as needed:
 | `~/.gitconfig` | `/root/.gitconfig` | Git identity |
 | `~/.config/gh` | `/root/.config/gh` | GitHub CLI auth |
 | `/var/run/docker.sock` | `/var/run/docker.sock` | Host Docker access |
+| `./certs` *(optional)* | `/etc/sandbox/certs` | `.crt`/`.pem` files trusted at startup (system store + Node) |

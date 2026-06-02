@@ -77,11 +77,15 @@ RUN mkdir -p /root/.venvs \
     && python3 -m venv /root/.venvs/global \
     && /root/.venvs/global/bin/python -m pip install --upgrade --no-cache-dir pip setuptools wheel pipx
 
-# Copy copilot wrapper
+# Copy copilot wrapper and entrypoint
 COPY copilot-alias.sh /usr/local/bin/copilot-alias.sh
+COPY entrypoint.sh /entrypoint.sh
+COPY init.d/ /etc/workspace/init.d/
 RUN chmod +x /usr/local/bin/copilot-alias.sh \
     && ln -s /usr/local/bin/copilot-alias.sh /usr/local/bin/yolo \
-    && mkdir -p /root/workspace /var/log/copilot
+    && mkdir -p /root/workspace /var/log/copilot \
+    && chmod +x /entrypoint.sh \
+    && chmod +x /etc/workspace/init.d/*.sh
 
 ENV COPILOT_DEFAULT_ADD_DIRS=/root/workspace,/root/workspace.worktrees,/root/.copilot
 ENV DOTNET_ROOT=/usr/lib/dotnet
@@ -92,4 +96,5 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /root/workspace
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]

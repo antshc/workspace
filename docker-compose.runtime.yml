@@ -29,3 +29,5 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # Required for GitHub CLI (gh) authentication — mount host gh config
       - ~/.config/gh:/root/.config/gh:ro
+      # Optional: mount a folder of CA certificates (.crt/.pem) to trust private CAs:
+      # - ./certs:/etc/sandbox/certs:ro
