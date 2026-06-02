@@ -31,3 +31,5 @@ services:
       - ~/.config/gh:/root/.config/gh:ro
       # Optional: mount a folder of CA certificates (.crt/.pem) to trust private CAs:
       # - ./certs:/etc/sandbox/certs:ro
+      # Optional: run custom setup steps at startup (after init.d, before main command):
+      # - ./setup.sh:/etc/sandbox/setup.sh:ro
