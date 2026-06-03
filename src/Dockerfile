@@ -45,7 +45,7 @@ RUN apt-get update \
         | tee /etc/apt/sources.list.d/azure-cli.list > /dev/null \
     # Refresh index once for all new repos, then install
     && apt-get update \
-    && apt-get install -y --no-install-recommends nodejs gh docker-ce-cli azure-cli \
+    && apt-get install -y --no-install-recommends nodejs gh docker-ce-cli azure-cli gosu \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -70,12 +70,16 @@ RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
     && ln -s /usr/lib/dotnet/dotnet /usr/local/bin/dotnet \
     && rm /tmp/dotnet-install.sh \
     && dotnet tool install --tool-path /usr/local/bin csharp-ls --version 0.16.0.0 \
-    && curl -fsSL https://gh.io/copilot-install | bash
+    && curl -fsSL https://gh.io/copilot-install | GH_DATA_DIR=/usr/local/share/gh bash
 
-# Create private global Python venv
-RUN mkdir -p /root/.venvs \
-    && python3 -m venv /root/.venvs/global \
-    && /root/.venvs/global/bin/python -m pip install --upgrade --no-cache-dir pip setuptools wheel pipx
+# Create shared Python venv under /opt so all users can use it
+RUN python3 -m venv /opt/venv \
+    && /opt/venv/bin/python -m pip install --upgrade --no-cache-dir pip setuptools wheel pipx
+
+# Rename the default ubuntu user/group (UID/GID 1000:1000) to dev
+RUN usermod -l dev ubuntu \
+    && groupmod -n dev ubuntu \
+    && usermod -d /home/dev -m dev
 
 # Copy copilot wrapper and entrypoint
 COPY copilot-alias.sh /usr/local/bin/copilot-alias.sh
@@ -83,18 +87,21 @@ COPY entrypoint.sh /entrypoint.sh
 COPY init.d/ /etc/workspace/init.d/
 RUN chmod +x /usr/local/bin/copilot-alias.sh \
     && ln -s /usr/local/bin/copilot-alias.sh /usr/local/bin/yolo \
-    && mkdir -p /root/workspace /var/log/copilot \
+    && mkdir -p /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot \
+    && chown -R dev:dev /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot \
     && chmod +x /entrypoint.sh \
     && chmod +x /etc/workspace/init.d/*.sh
 
-ENV COPILOT_DEFAULT_ADD_DIRS=/root/workspace,/root/workspace.worktrees,/root/.copilot
+ENV COPILOT_DEFAULT_ADD_DIRS=/home/dev/workspace,/home/dev/workspace.worktrees,/home/dev/.copilot
 ENV DOTNET_ROOT=/usr/lib/dotnet
-ENV PATH=/root/.local/bin:/root/.venvs/global/bin:$PATH
-ENV PIPX_HOME=/root/.local/pipx
-ENV PIPX_BIN_DIR=/root/.local/bin
+ENV GH_DATA_DIR=/usr/local/share/gh
+ENV PATH=/opt/venv/bin:$PATH
+ENV PIPX_HOME=/opt/pipx
+ENV PIPX_BIN_DIR=/usr/local/bin
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-WORKDIR /root/workspace
+WORKDIR /home/dev/workspace
+# Do not set USER — entrypoint runs as root to do init, then drops to dev via gosu
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
