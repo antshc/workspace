@@ -87,8 +87,8 @@ COPY entrypoint.sh /entrypoint.sh
 COPY init.d/ /etc/workspace/init.d/
 RUN chmod +x /usr/local/bin/copilot-alias.sh \
     && ln -s /usr/local/bin/copilot-alias.sh /usr/local/bin/yolo \
-    && mkdir -p /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot /usr/local/share/gh \
-    && chown -R dev:dev /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot /usr/local/share/gh \
+    && mkdir -p /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot \
+    && chown -R dev:dev /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot \
     && chmod +x /entrypoint.sh \
     && chmod +x /etc/workspace/init.d/*.sh
 
