@@ -15,4 +15,4 @@ if [ -f /etc/sandbox/setup.sh ]; then
   bash /etc/sandbox/setup.sh
 fi
 
-exec gosu dev "$@"
+exec "$@"

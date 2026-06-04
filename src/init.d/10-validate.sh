@@ -6,7 +6,7 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-if [ -z "${COPILOT_GITHUB_TOKEN:-}" ] && [ ! -f "/home/dev/.config/gh/hosts.yml" ] && [ ! -f "/root/.config/gh/hosts.yml" ]; then
+if [ -z "${COPILOT_GITHUB_TOKEN:-}" ] && [ ! -f "/root/.config/gh/hosts.yml" ]; then
   echo "ERROR: No Copilot auth found. Set COPILOT_GITHUB_TOKEN or mount ~/.config/gh" >&2
   exit 1
 fi
