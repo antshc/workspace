@@ -15,4 +15,5 @@ if [ -f /etc/sandbox/setup.sh ]; then
   bash /etc/sandbox/setup.sh
 fi
 
-exec gosu dev "$@"
+# Always runs as root to perform privileged init steps above, then drops to WORKSPACE_USER.
+exec gosu "${WORKSPACE_USER:-dev}" "$@"
