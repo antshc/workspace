@@ -7,7 +7,6 @@ ARG AZURE_CLI_CODENAME=jammy
 ARG NODE_MAJOR=24
 ARG DOTNET_SDK_8_VERSION=8.0.419
 ARG DOTNET_SDK_10_VERSION=10.0.105
-ARG WORKSPACE_USER=dev
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
@@ -77,11 +76,10 @@ RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
 RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/python -m pip install --upgrade --no-cache-dir pip setuptools wheel pipx
 
-# Rename the default ubuntu user/group (UID/GID 1000:1000) to $WORKSPACE_USER
-ENV WORKSPACE_USER=${WORKSPACE_USER}
-RUN usermod -l ${WORKSPACE_USER} ubuntu \
-    && groupmod -n ${WORKSPACE_USER} ubuntu \
-    && usermod -d /home/${WORKSPACE_USER} -m ${WORKSPACE_USER}
+# Rename the default ubuntu user/group (UID/GID 1000:1000) to dev
+RUN usermod -l dev ubuntu \
+    && groupmod -n dev ubuntu \
+    && usermod -d /home/dev -m dev
 
 # Copy copilot wrapper and entrypoint
 COPY copilot-alias.sh /usr/local/bin/copilot-alias.sh
@@ -89,12 +87,12 @@ COPY entrypoint.sh /entrypoint.sh
 COPY init.d/ /etc/workspace/init.d/
 RUN chmod +x /usr/local/bin/copilot-alias.sh \
     && ln -s /usr/local/bin/copilot-alias.sh /usr/local/bin/yolo \
-    && mkdir -p /home/${WORKSPACE_USER}/workspace /home/${WORKSPACE_USER}/workspace.worktrees /var/log/copilot /usr/local/share/gh \
-    && chown -R ${WORKSPACE_USER}:${WORKSPACE_USER} /home/${WORKSPACE_USER}/workspace /home/${WORKSPACE_USER}/workspace.worktrees /var/log/copilot /usr/local/share/gh \
+    && mkdir -p /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot /usr/local/share/gh \
+    && chown -R dev:dev /home/dev/workspace /home/dev/workspace.worktrees /var/log/copilot /usr/local/share/gh \
     && chmod +x /entrypoint.sh \
     && chmod +x /etc/workspace/init.d/*.sh
 
-ENV COPILOT_DEFAULT_ADD_DIRS=/home/${WORKSPACE_USER}/workspace,/home/${WORKSPACE_USER}/workspace.worktrees,/home/${WORKSPACE_USER}/.copilot
+ENV COPILOT_DEFAULT_ADD_DIRS=/home/dev/workspace,/home/dev/workspace.worktrees,/home/dev/.copilot
 ENV DOTNET_ROOT=/usr/lib/dotnet
 ENV GH_DATA_DIR=/usr/local/share/gh
 ENV PATH=/opt/venv/bin:$PATH
@@ -102,9 +100,8 @@ ENV PIPX_HOME=/opt/pipx
 ENV PIPX_BIN_DIR=/usr/local/bin
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-WORKDIR /home/${WORKSPACE_USER}/workspace
-# Force root at container start so entrypoint init scripts can run privileged checks.
-USER root
+WORKDIR /home/dev/workspace
+# Do not set USER — entrypoint runs as root to do init, then drops to dev via gosu
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# yolo — unified wrapper around the copilot CLI
-# Usage: yolo              → interactive session
+# copiloty — unified wrapper around the copilot CLI
+# Usage: copiloty              → interactive session
 
 MODEL="${COPILOT_MODEL:-claude-sonnet-4.6}"
 EFFORT="${COPILOT_EFFORT:-}"

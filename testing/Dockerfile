@@ -1,6 +1,6 @@
 FROM workspace:latest
 
-# Install brain CLI via pipx — global install (/opt/pipx), accessible to all users
+# Install brain CLI via pipx
 RUN pipx install git+https://github.com/antshc/brain.git
 
 # Keep root as the default build-time user so the inherited ENTRYPOINT runs as root

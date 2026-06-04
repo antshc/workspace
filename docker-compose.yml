@@ -8,9 +8,6 @@ services:
     environment:
       - COPILOT_GITHUB_TOKEN=${COPILOT_GITHUB_TOKEN}
       - COPILOT_MODEL=${COPILOT_MODEL:-claude-sonnet-4.6}
-      # Optional: drop to a specific user after entrypoint init (e.g. match host UID/GID for file permissions).
-      # Do NOT use compose 'user:' — the entrypoint must start as root.
-      # - RUN_AS_USER=1000:1000
       # Optional: override inference effort (e.g. low, medium, high)
       # - COPILOT_EFFORT=${COPILOT_EFFORT}
       # Optional: cap the autopilot continuation loop (default: 20)
