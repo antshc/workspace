@@ -39,3 +39,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # Required for GitHub CLI (gh) authentication — mount host gh config
       - ~/.config/gh:/root/.config/gh:rw
+      # Mount gh config for the dev user so `copilot plugin install` (run as dev) can authenticate
+      - ~/.config/gh:/home/dev/.config/gh:ro
+      # Run copilot plugin installs at startup (after init.d, before main command)
+      - ./testing/setup.sh:/etc/sandbox/setup.sh:ro
