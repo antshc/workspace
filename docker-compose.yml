@@ -3,11 +3,19 @@ services:
     build:
       context: ./src
       dockerfile: Dockerfile
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      net.ipv4.conf.all.route_localnet: 1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       - COPILOT_GITHUB_TOKEN=${COPILOT_GITHUB_TOKEN}
       - COPILOT_MODEL=${COPILOT_MODEL:-claude-sonnet-4.6}
+      # Optional: forward localhost ports to host.docker.internal (e.g. local services, DynamoDB, Redis)
+      # Comma-separated ports and/or dash ranges: "8000", "8000,5432", "9200-9300", "8000-8100,9500-9600"
+      # Requires cap_add: [NET_ADMIN] and sysctls: net.ipv4.conf.all.route_localnet: 1 (already set above)
+      # - HOST_DOCKER_DNAT_PORTS=${HOST_DOCKER_DNAT_PORTS}
       # Optional: override inference effort (e.g. low, medium, high)
       # - COPILOT_EFFORT=${COPILOT_EFFORT}
       # Optional: cap the autopilot continuation loop (default: 20)

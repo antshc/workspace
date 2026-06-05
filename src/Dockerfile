@@ -20,7 +20,7 @@ RUN apt-get update \
         iproute2 net-tools lsof netcat-openbsd dnsutils \
         python3 python3-pip python3-venv \
         libicu74 libssl3t64 \
-        iputils-ping \
+        iptables iputils-ping \
     # Node repo
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
